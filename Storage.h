@@ -24,8 +24,8 @@ class Pager {
 		std::size_t file_length;
 		void* pages[TABLE_MAX_PAGES];
 	public:
-		Pager(const char* filename)	
-}
+		Pager(const char* filename);	
+};
 
 
 class Row{
