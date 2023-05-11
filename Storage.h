@@ -57,13 +57,12 @@ class Table{
 	private:
 		std::size_t num_rows;
 		void* pages[TABLE_MAX_PAGES];
-		void* getNewRowAddress();
+		void* getNewRowAddress(std::size_t row_num);
 	public:
 		Table();	
 		void addRow(Row* newRow);
 		std::size_t getNumRows();
 		void printRows();
-		void* getNewRowAddress(std::size_t row_num);
 		void readRow(std::size_t row_num);
 };
 
