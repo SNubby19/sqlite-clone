@@ -8,15 +8,25 @@
 void print_prompt();
 void do_meta_command(std::string command);
 
-int main() {
+int main(int argc, char* argv[]) {
+	if (argc < 2) {
+		printf("Must supply a database filename.\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	char* filename = argv[1];
+
 	std::string command;
-	Table* newTable = new Table();
+	Table* newTable = new Table(filename);
 
 
 	while(true) {
 		print_prompt();
 
 		std::getline(std::cin, command);
+
+
+
 		if (command[0] == '.') {
 			try {
 				do_meta_command(command);
@@ -56,8 +66,10 @@ void print_prompt() {
 	std::cout << "db > ";
 }
 
-void do_meta_command(std::string command) {
+void do_meta_command(std::string command, Table* table) {
 	if (command == ".exit") {
+		delete table;
+		table = nullptr;
 		throw LeaveShellException();
 	} else {
 		throw CommandNotRecognizedException(command);
