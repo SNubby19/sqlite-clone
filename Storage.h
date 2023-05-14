@@ -22,23 +22,30 @@ const std::size_t TABLE_MAX_ROWS = ROWS_PER_PAGE * TABLE_MAX_PAGES;
 class Pager
 {
 private:
-	std::fstream file_descriptor;
+	std::fstream file;
 	std::size_t file_length;
-	void *pages[TABLE_MAX_PAGES];
+	char *pages[TABLE_MAX_PAGES];
 
 public:
 	Pager(const char *filename)
 	{
-		this->file_descriptor.open(filename, std::ios::in | std::ios::out | std::ios::trunc);
+		file.open(filename, std::ios::in | std::ios::out | std::ios::trunc);
 
-		if (!file_descriptor.is_open())
+		if (!file.is_open())
 		{
-			std::cerr << "File did not open\n";
-			exit(1);
+			std::cerr << "Failed to open file!\n";
+			exit(EXIT_FAILURE);
 		}
 
-		file_descriptor.seekg(0, file_descriptor.end);
-		off_t file_length = file_descriptor.tellg();
+		file.seekg(0, std::ios::end);
+
+		if (file.fail()) {
+			std::cout << "seekg failed" << std::endl;
+		}
+
+
+		std::streampos file_length = file.tellg();
+		std::cout << file_length << std::endl;
 
 		this->file_length = file_length;
 
@@ -48,9 +55,9 @@ public:
 		}
 	}
 	std::size_t getFileLength();
-	std::fstream getFileDescriptor();
-	void *getPage(std::size_t page_num);
-	void **getPages();
+	std::fstream* getFileDescriptor();
+	char *getPage(std::size_t page_num);
+	char **getPages();
 	void flush(std::size_t page_num, std::size_t size);
 };
 
@@ -58,8 +65,8 @@ class Row
 {
 private:
 	std::size_t id;
-	char username[USERNAME_SIZE];
-	char email[EMAIL_SIZE];
+	char username[USERNAME_SIZE + 1];
+	char email[EMAIL_SIZE + 1];
 
 public:
 	Row(std::vector<std::string> tokens)
@@ -77,16 +84,16 @@ public:
 	std::size_t getId();
 	std::string getUsername();
 	std::string getEmail();
-	void *getIdPointer();
-	void *getUsernamePointer();
-	void *getEmailPointer();
+	std::size_t *getIdPointer();
+	char *getUsernamePointer();
+	char *getEmailPointer();
 };
 
 class Table
 {
 private:
 	std::size_t num_rows;
-	void *getNewRowAddress(std::size_t row_num);
+	char *getRowAddress(std::size_t row_num);
 	Pager *pager;
 
 public:
@@ -94,7 +101,7 @@ public:
 	{
 		Pager *pager = new Pager(filename);
 		this->pager = pager;
-		num_rows = pager->getFileLength() / ROW_SIZE;
+		num_rows = this->pager->getFileLength() / ROW_SIZE;
 		this->num_rows = num_rows;
 	}
 	~Table() {
@@ -120,15 +127,15 @@ public:
 			}
 		}
 
-		pager->getFileDescriptor().close();
+		pager->getFileDescriptor()->close();
 
-		if(!pager->getFileDescriptor()) {
+		if(pager->getFileDescriptor()->fail()) {
 			printf("Error closing db file.\n");
 			exit(EXIT_FAILURE);
 		}
 
 		for(std::size_t i = 0; i < TABLE_MAX_PAGES; i++) {
-			void* page = pager->getPages()[i];
+			char *page = pager->getPages()[i];
 
 			if (page) {
 				delete page;
@@ -137,8 +144,6 @@ public:
 		}
 		delete pager;
 		pager = nullptr;
-
-
 	};
 	void addRow(Row *newRow);
 	std::size_t getNumRows();

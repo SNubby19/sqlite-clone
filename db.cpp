@@ -6,7 +6,7 @@
 
 
 void print_prompt();
-void do_meta_command(std::string command);
+void do_meta_command(std::string command, Table* table);
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
 
 		if (command[0] == '.') {
 			try {
-				do_meta_command(command);
+				do_meta_command(command, newTable);
 				continue;
 			} catch (LeaveShellException& lse) {
 				std::cout << lse.what() << std::endl;
@@ -38,8 +38,7 @@ int main(int argc, char* argv[]) {
 			catch (CommandNotRecognizedException& cnr) {
 				std::cerr << cnr.what() << std::endl;	
 				continue;
-			}	
-
+			}
 		} else {
 			Statement *statement = new Statement(command);
 
@@ -55,9 +54,7 @@ int main(int argc, char* argv[]) {
 			statement = nullptr;
 		}
 	}	
-
-	delete newTable;
-	newTable = nullptr;
+	
 	return 0;
 }
 
