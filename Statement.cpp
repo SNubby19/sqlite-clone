@@ -38,7 +38,7 @@ void Statement::executeStatement(Table* table) {
 	} else if (tokens[0] == "select") {
 		executeSelect(table);
 	} else {
-		throw CommandNotRecognizedException(statementString);	
+		throw CommandNotRecognizedException(tokens[0]);	
 	}
 }
 

@@ -6,7 +6,9 @@
 #include "Storage.h"
 #include "Exceptions.cpp"
 
-std::fstream *Pager::getFileDescriptor()
+#define sout std::cout
+
+std::fstream *Pager::getFile()
 {
 	return &(file);
 }
@@ -21,6 +23,14 @@ char **Pager::getPages()
 	return pages;
 }
 
+void Pager::checkFileFail(const std::string &function_of_failure)
+{
+	if (file.fail())
+	{
+		sout << "file failed at " << function_of_failure << "\n";
+	}
+}
+
 char *Pager::getPage(std::size_t page_num)
 {
 	if (page_num > TABLE_MAX_PAGES)
@@ -33,20 +43,27 @@ char *Pager::getPage(std::size_t page_num)
 		char *page = new char[PAGE_SIZE];
 		std::size_t num_pages = file_length / PAGE_SIZE;
 
-		if (file_length % PAGE_SIZE)
+		if (file_length % PAGE_SIZE != 0)
 		{
 			num_pages += 1;
 		}
 
-		if (page_num <= num_pages)
+		if (page_num <= num_pages && file_length != 0)
 		{
-			file.seekg(page_num * PAGE_SIZE);
+			checkFileFail("getPage ln52");
+			file.seekg(page_num * PAGE_SIZE, std::ios::beg);
+			checkFileFail("getPage ln54");
 			file.read(page, PAGE_SIZE);
-			std::streamsize bytes_read = file.gcount();
-			if (bytes_read == -1)
+			if (file.fail())
 			{
-				printf("Error reading file: %f\n", errno);
-				exit(EXIT_FAILURE);
+				if (file.eof())
+				{
+					cout << "Reached end of file\n";
+				}
+				else
+				{
+					std::cerr << "Error reading from file\n";
+				}
 			}
 		}
 
@@ -62,16 +79,25 @@ void Pager::flush(std::size_t page_num, std::size_t size)
 		printf("Tried to flush null page\n");
 		exit(EXIT_FAILURE);
 	}
-	
-	file.write(pages[page_num], size);
+
+	file.seekp(0 * 4096, std::ios::beg);
 
 	if (file.fail())
 	{
-		printf("Error writing: %d\n", errno);
+		checkFileFail("flush ln89");
+		printf("Failed to seek write position in the file %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	
 
+	file.write(pages[page_num], size);
+	checkFileFail("flush ln97");
+
+	if (file.fail())
+	{
+		std::cerr << "Error: Write operation failed.\n";
+	}
+
+	sout << (bool)file.fail() << "\n";
 }
 
 std::size_t Row::getId()
@@ -104,6 +130,11 @@ char *Row::getEmailPointer()
 	return email;
 }
 
+Pager *Table::getPager()
+{
+	return pager;
+}
+
 char *Table::getRowAddress(std::size_t row_num)
 {
 	std::size_t page_num = row_num / ROWS_PER_PAGE;
@@ -130,6 +161,7 @@ void Table::addRow(Row *newRow)
 	memcpy(newRowAddress + EMAIL_OFFSET, newRow->getEmailPointer(), EMAIL_SIZE);
 
 	num_rows++;
+	sout << num_rows << "\n";
 
 	return;
 }
@@ -139,11 +171,15 @@ void Table::readRow(std::size_t row_num)
 	char *row_address = getRowAddress(row_num);
 
 	Row *row = new Row(0, "", "");
+
 	memcpy(row->getIdPointer(), row_address + ID_OFFSET, ID_SIZE);
 	memcpy(row->getUsernamePointer(), row_address + USERNAME_OFFSET, USERNAME_SIZE);
 	memcpy(row->getEmailPointer(), row_address + EMAIL_OFFSET, EMAIL_SIZE);
 
 	printf("(%ld, %s, %s)\n", row->getId(), row->getUsername().c_str(), row->getEmail().c_str());
+
+	delete row;
+	row = nullptr;
 }
 
 void Table::printRows()

@@ -4,6 +4,7 @@
 #include "Statement.h"
 #include "Storage.h"
 
+#define sout std::cout
 
 void print_prompt();
 void do_meta_command(std::string command, Table* table);
@@ -19,13 +20,15 @@ int main(int argc, char* argv[]) {
 	std::string command;
 	Table* newTable = new Table(filename);
 
+	if (newTable->getPager()->getFile()->fail()) {
+		std::cout << "Something is wrong with the file even before we try writing to it?\n"; 
+	}
+
 
 	while(true) {
 		print_prompt();
 
 		std::getline(std::cin, command);
-
-
 
 		if (command[0] == '.') {
 			try {

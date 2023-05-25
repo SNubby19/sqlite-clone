@@ -21,7 +21,7 @@ class CommandNotRecognizedException : public exception
 public:
 	CommandNotRecognizedException(string cmd)
 	{
-		message = "Unrecognized Commad: '" + cmd + "'";
+		message = "Unrecognized Command: '" + cmd + "'";
 	}
 	virtual const char *what() const throw()
 	{
