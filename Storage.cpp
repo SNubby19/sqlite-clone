@@ -42,8 +42,13 @@ char *Pager::getPage(std::size_t page_num)
 	if (pages[page_num] == nullptr)
 	{
 		char *page = new char[PAGE_SIZE];
+		std::size_t num_pages = file_length / PAGE_SIZE;
 
-		if (file_length / PAGE_SIZE > (sizeof(pages)/sizeof(pages[0]))) {
+		if (file_length/PAGE_SIZE != 0) {
+			num_pages++;
+		}
+
+		if (page_num <= num_pages && file_length != 0) {
 			file.seekg(page_num * PAGE_SIZE, std::ios::beg);
 			file.read(page, PAGE_SIZE);
 
