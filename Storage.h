@@ -36,7 +36,6 @@ public:
 
 		if (!file.is_open())
 		{
-			sout << "File failed to open " << filename << "\n";
 			file.close();
 			file.open(filename, std::ios::in | std::ios::out | std::ios::trunc);	
 		}

@@ -33,6 +33,7 @@ void Pager::checkFileFail(const std::string &function_of_failure)
 
 char *Pager::getPage(std::size_t page_num)
 {
+	sout << "number from getPage " << page_num << "\n";	
 	if (page_num > TABLE_MAX_PAGES)
 	{
 		throw PageOutOfBoundsError(page_num);
@@ -41,31 +42,21 @@ char *Pager::getPage(std::size_t page_num)
 	if (pages[page_num] == nullptr)
 	{
 		char *page = new char[PAGE_SIZE];
-		std::size_t num_pages = file_length / PAGE_SIZE;
 
-		if (file_length % PAGE_SIZE != 0)
-		{
-			num_pages += 1;
-		}
-
-		if (page_num <= num_pages && file_length != 0)
-		{
-			checkFileFail("getPage ln52");
+		if (file_length / PAGE_SIZE > (sizeof(pages)/sizeof(pages[0]))) {
 			file.seekg(page_num * PAGE_SIZE, std::ios::beg);
-			checkFileFail("getPage ln54");
 			file.read(page, PAGE_SIZE);
-			if (file.fail())
-			{
-				if (file.eof())
-				{
-					cout << "Reached end of file\n";
+
+			if (file.fail()) {
+				if (file.eof()) {
+					sout << "Reached end of file";
 				}
-				else
-				{
-					std::cerr << "Error reading from file\n";
-				}
+				else {
+					sout << "can't identify error: here is the errno: " << errno << "\n";
+				}	
 			}
 		}
+
 
 		pages[page_num] = page;
 	}
@@ -80,7 +71,7 @@ void Pager::flush(std::size_t page_num, std::size_t size)
 		exit(EXIT_FAILURE);
 	}
 
-	file.seekp(0 * 4096, std::ios::beg);
+	file.seekp(page_num * PAGE_SIZE, std::ios::beg);
 
 	if (file.fail())
 	{
