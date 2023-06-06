@@ -30,34 +30,48 @@ int main(int argc, char* argv[]) {
 
 		std::getline(std::cin, command);
 
-		if (command[0] == '.') {
-			try {
+		if (command[0] == '.')
+		{
+			try
+			{
 				do_meta_command(command, newTable);
 				continue;
-			} catch (LeaveShellException& lse) {
+			}
+			catch (LeaveShellException &lse)
+			{
 				std::cout << lse.what() << std::endl;
 				break;
 			}
-			catch (CommandNotRecognizedException& cnr) {
-				std::cerr << cnr.what() << std::endl;	
+			catch (CommandNotRecognizedException &cnr)
+			{
+				std::cerr << cnr.what() << std::endl;
 				continue;
 			}
-		} else {
+		}
+		else if (command.length() == 0)
+		{
+			continue;
+		}
+		else
+		{
 			Statement *statement = new Statement(command);
 
 			statement->parseStatement();
-			
-			try {
+
+			try
+			{
 
 				statement->executeStatement(newTable);
-			} catch (CommandNotRecognizedException& cnr) {
+			}
+			catch (CommandNotRecognizedException &cnr)
+			{
 				std::cerr << cnr.what() << std::endl;
 			}
 			delete statement;
 			statement = nullptr;
 		}
-	}	
-	
+	}
+
 	return 0;
 }
 

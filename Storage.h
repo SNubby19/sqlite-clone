@@ -32,7 +32,7 @@ private:
 public:
 	Pager(const char *filename)
 	{
-		file.open(filename, std::ios::in | std::ios::out | std::ios::ate);
+		file.open(filename, std::ios::in | std::ios::out);
 
 		if (!file.is_open())
 		{
@@ -42,7 +42,7 @@ public:
 
 		if (!file.is_open()) {exit(EXIT_FAILURE);}
 
-
+		file.seekg(0, std::ios::end);
 		std::streampos file_length = file.tellg();
 		std::cout << file_length << std::endl;
 

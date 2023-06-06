@@ -33,7 +33,6 @@ void Pager::checkFileFail(const std::string &function_of_failure)
 
 char *Pager::getPage(std::size_t page_num)
 {
-	sout << "number from getPage " << page_num << "\n";	
 	if (page_num > TABLE_MAX_PAGES)
 	{
 		throw PageOutOfBoundsError(page_num);
@@ -44,24 +43,40 @@ char *Pager::getPage(std::size_t page_num)
 		char *page = new char[PAGE_SIZE];
 		std::size_t num_pages = file_length / PAGE_SIZE;
 
-		if (file_length/PAGE_SIZE != 0) {
+		if (file_length % PAGE_SIZE != 0)
+		{
 			num_pages++;
 		}
 
-		if (page_num <= num_pages && file_length != 0) {
+		if (page_num <= num_pages && file_length != 0)
+		{
 			file.seekg(page_num * PAGE_SIZE, std::ios::beg);
 			file.read(page, PAGE_SIZE);
 
-			if (file.fail()) {
-				if (file.eof()) {
-					sout << "Reached end of file";
+			if (file.fail())
+			{
+				if (file.eof())
+				{
+					sout << "Reached end of file.\n";
+
+					file.close();
+
+					if (file.is_open()) {
+						sout << "file is still open ??? \n";
+					}
+
+					file.open(filename, std::ios::in | std::ios::out);		
+
+					if (file.eof()) {
+						sout << "File at end of line after reopening??\n";
+					}	
 				}
-				else {
-					sout << "can't identify error: here is the errno: " << errno << "\n";
-				}	
+				else
+				{
+					sout << "can't identify error, here is the errno: " << errno << "\n";
+				}
 			}
 		}
-
 
 		pages[page_num] = page;
 	}
@@ -157,7 +172,6 @@ void Table::addRow(Row *newRow)
 	memcpy(newRowAddress + EMAIL_OFFSET, newRow->getEmailPointer(), EMAIL_SIZE);
 
 	num_rows++;
-	sout << num_rows << "\n";
 
 	return;
 }

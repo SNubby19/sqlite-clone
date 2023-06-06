@@ -44,7 +44,7 @@ void Statement::executeStatement(Table* table) {
 
 void Statement::executeSelect(Table* table) {
 	table->printRows();
-	std::cout << "Executed." << std::endl;
+	std::cout << "db > Executed." << std::endl;
 
 	return;
 }
@@ -57,7 +57,7 @@ void Statement::executeInsert(Table* table) {
 	Row* newRow = new Row(tokens);
 
 	table->addRow(newRow);
-	std::cout << "Executed." << std::endl;
+	std::cout << "db > Executed." << std::endl;
 
 	return;
 }
