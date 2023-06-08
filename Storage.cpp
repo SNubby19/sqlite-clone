@@ -43,10 +43,10 @@ char *Pager::getPage(std::size_t page_num)
 		char *page = new char[PAGE_SIZE];
 		std::size_t num_pages = file_length / PAGE_SIZE;
 
-		if (file_length % PAGE_SIZE != 0)
-		{
-			num_pages++;
-		}
+		// if (file_length % PAGE_SIZE != 0)
+		// {
+		// 	num_pages++;
+		// }
 
 	
 
@@ -58,34 +58,21 @@ char *Pager::getPage(std::size_t page_num)
 
 			sout << PAGE_SIZE << "\n";
 
-			file.read(page, PAGE_SIZE);
+			sout << file_length << "\n";
+
+			if (file_length >= PAGE_SIZE)
+			{
+				file.read(page, PAGE_SIZE);
+			} else {
+				file.read(page, file_length);
+			}
+
 
 			if (file.fail()) {
-				sout << "Read operation failed!\n";
+				sout << "I might give up at this point \n";
 			}
 
-			if (file.is_open()) {
-				sout << "File is open after a failed read operation\n";
-			}
-
-			file.close();
-
-			if (file.is_open()) {
-				sout << "File is still open after trying the close method\n";
-			}
-
-			file.open(filename, std::ios::in | std::ios::out);
-			
-			file.seekg(0, std::ios::beg);
-
-			sout << "tellg: " << file.tellg() << " tellp " << file.tellp() << "\n";
-	
-			if (file.fail()) {
-				sout << "File failed after a hard reset??\n";
-			}
-
-
-			// if (file.fail())
+		// if (file.fail())
 			// {
 				// if (file.eof())
 				// {
