@@ -48,34 +48,70 @@ char *Pager::getPage(std::size_t page_num)
 			num_pages++;
 		}
 
+	
+
 		if (page_num <= num_pages && file_length != 0)
 		{
 			file.seekg(page_num * PAGE_SIZE, std::ios::beg);
+
+			sout << num_pages << "\n";
+
+			sout << PAGE_SIZE << "\n";
+
 			file.read(page, PAGE_SIZE);
 
-			if (file.fail())
-			{
-				if (file.eof())
-				{
-					sout << "Reached end of file.\n";
-
-					file.close();
-
-					if (file.is_open()) {
-						sout << "file is still open ??? \n";
-					}
-
-					file.open(filename, std::ios::in | std::ios::out);		
-
-					if (file.eof()) {
-						sout << "File at end of line after reopening??\n";
-					}	
-				}
-				else
-				{
-					sout << "can't identify error, here is the errno: " << errno << "\n";
-				}
+			if (file.fail()) {
+				sout << "Read operation failed!\n";
 			}
+
+			if (file.is_open()) {
+				sout << "File is open after a failed read operation\n";
+			}
+
+			file.close();
+
+			if (file.is_open()) {
+				sout << "File is still open after trying the close method\n";
+			}
+
+			file.open(filename, std::ios::in | std::ios::out);
+			
+			file.seekg(0, std::ios::beg);
+
+			sout << "tellg: " << file.tellg() << " tellp " << file.tellp() << "\n";
+	
+			if (file.fail()) {
+				sout << "File failed after a hard reset??\n";
+			}
+
+
+			// if (file.fail())
+			// {
+				// if (file.eof())
+				// {
+				// 	sout << "Reached end of file.\n";
+
+				// 	file.close();
+
+				// 	if (file.is_open()) {
+				// 		sout << "file is still open ??? \n";
+				// 	}
+
+				// 	if (file.fail()) {
+				// 		sout << "Closing failed ??\n";
+				// 	}	
+				
+				// 	file.open(filename, std::ios::in | std::ios::out);		
+
+				// 	if (file.fail()) {
+				// 		sout << "File at end of line after reopening??\n";
+				// 	}	
+				// }
+				// else
+				// {
+				// 	sout << "can't identify error, here is the errno: " << errno << "\n";
+				// }
+		// 	}
 		}
 
 		pages[page_num] = page;
@@ -186,7 +222,7 @@ void Table::readRow(std::size_t row_num)
 	memcpy(row->getUsernamePointer(), row_address + USERNAME_OFFSET, USERNAME_SIZE);
 	memcpy(row->getEmailPointer(), row_address + EMAIL_OFFSET, EMAIL_SIZE);
 
-	printf("(%ld, %s, %s)\n", row->getId(), row->getUsername().c_str(), row->getEmail().c_str());
+	printf("(%lld, %s, %s)\n", row->getId(), row->getUsername().c_str(), row->getEmail().c_str());
 
 	delete row;
 	row = nullptr;

@@ -46,8 +46,6 @@ public:
 		std::streampos file_length = file.tellg();
 		std::cout << file_length << std::endl;
 
-		checkFileFail("Pager constructor from command at line 55");
-
 		this->file_length = file_length;
 
 		for (std::size_t i = 0; i < TABLE_MAX_PAGES; i++)
