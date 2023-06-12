@@ -43,22 +43,9 @@ char *Pager::getPage(std::size_t page_num)
 		char *page = new char[PAGE_SIZE];
 		std::size_t num_pages = file_length / PAGE_SIZE;
 
-		// if (file_length % PAGE_SIZE != 0)
-		// {
-		// 	num_pages++;
-		// }
-
-	
-
 		if (page_num <= num_pages && file_length != 0)
 		{
 			file.seekg(page_num * PAGE_SIZE, std::ios::beg);
-
-			sout << num_pages << "\n";
-
-			sout << PAGE_SIZE << "\n";
-
-			sout << file_length << "\n";
 
 			if (file_length >= PAGE_SIZE)
 			{
@@ -66,39 +53,6 @@ char *Pager::getPage(std::size_t page_num)
 			} else {
 				file.read(page, file_length);
 			}
-
-
-			if (file.fail()) {
-				sout << "I might give up at this point \n";
-			}
-
-		// if (file.fail())
-			// {
-				// if (file.eof())
-				// {
-				// 	sout << "Reached end of file.\n";
-
-				// 	file.close();
-
-				// 	if (file.is_open()) {
-				// 		sout << "file is still open ??? \n";
-				// 	}
-
-				// 	if (file.fail()) {
-				// 		sout << "Closing failed ??\n";
-				// 	}	
-				
-				// 	file.open(filename, std::ios::in | std::ios::out);		
-
-				// 	if (file.fail()) {
-				// 		sout << "File at end of line after reopening??\n";
-				// 	}	
-				// }
-				// else
-				// {
-				// 	sout << "can't identify error, here is the errno: " << errno << "\n";
-				// }
-		// 	}
 		}
 
 		pages[page_num] = page;
@@ -116,22 +70,7 @@ void Pager::flush(std::size_t page_num, std::size_t size)
 
 	file.seekp(page_num * PAGE_SIZE, std::ios::beg);
 
-	if (file.fail())
-	{
-		checkFileFail("flush ln89");
-		printf("Failed to seek write position in the file %d\n", errno);
-		exit(EXIT_FAILURE);
-	}
-
 	file.write(pages[page_num], size);
-	checkFileFail("flush ln97");
-
-	if (file.fail())
-	{
-		std::cerr << "Error: Write operation failed.\n";
-	}
-
-	sout << (bool)file.fail() << "\n";
 }
 
 std::size_t Row::getId()

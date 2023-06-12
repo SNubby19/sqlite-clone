@@ -44,7 +44,6 @@ public:
 
 		file.seekg(0, std::ios::end);
 		std::streampos file_length = file.tellg();
-		std::cout << file_length << std::endl;
 
 		this->file_length = file_length;
 
@@ -107,19 +106,15 @@ public:
 	{
 		std::size_t num_full_pages = num_rows / ROWS_PER_PAGE;
 
-		sout << num_full_pages << "\n";
 		for (std::size_t i = 0; i < num_full_pages; i++)
 		{
 			if (pager->getPages()[i] == nullptr)
 			{
 				continue;
 			}
-			sout << "flushing at 128 in destructor\n";
 			pager->flush(i, PAGE_SIZE);
 			delete pager->getPages()[i];
 			pager->getPages()[i] = nullptr;
-
-			sout << pager->getFile()->is_open() << "\n";
 		}
 		std::size_t page_num = num_full_pages;
 
@@ -129,7 +124,6 @@ public:
 		{
 			if (pager->getPages()[page_num] != nullptr)
 			{
-				sout << "flushing at 143 in destructor\n";
 				pager->flush(page_num, num_additional_rows * ROW_SIZE);
 				delete pager->getPages()[page_num];
 				pager->getPages()[page_num] = nullptr;

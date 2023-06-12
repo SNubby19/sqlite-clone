@@ -20,11 +20,6 @@ int main(int argc, char* argv[]) {
 	std::string command;
 	Table* newTable = new Table(filename);
 
-	if (newTable->getPager()->getFile()->fail()) {
-		std::cout << "Something is wrong with the file even before we try writing to it?\n"; 
-	}
-
-
 	while(true) {
 		print_prompt();
 
